@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { StyleSheet, Text, View, TextProps, TextStyle } from 'react-native'
 
 interface H1Props extends TextProps {
   style?: TextStyle,
-  children: string
+  children: ReactNode|string|number|Text|any[]
 }
 
 const H1 = (props: H1Props) => {

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { StyleSheet, FlatList, ListRenderItem } from 'react-native';
+import { StyleSheet, FlatList, ListRenderItem, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../App';
 import Product from '../../../models/product';
@@ -33,7 +33,9 @@ const ProductsOverview: TNavScreenComp = (props: ProductsOverviewProps) => {
       }
     }
     return (
-      <ProductItem {...productItemProps} />
+      <View style={styles.itemContainer}>
+        <ProductItem {...productItemProps} />
+      </View>
     )
   }
 
@@ -51,4 +53,8 @@ ProductsOverview.navigationOptions = {
 
 export default ProductsOverview
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  itemContainer: {
+    flex: 1
+  }
+})
