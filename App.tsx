@@ -5,8 +5,8 @@ import { Provider } from 'react-redux'
 import { AppLoading } from 'expo'
 import * as Font from 'expo-font';
 
-import productsReducer, { IProducts } from './store/reducers/products';
 import ShopNavigator from './navigation/ShopNavigator';
+import configureStore from './store/configureStore'
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -15,13 +15,6 @@ const fetchFonts = () => {
   });
 }
 
-type productsReducer = IProducts;
-
-const rootReducer = combineReducers({
-  products: productsReducer
-});
-
-const store = createStore(rootReducer)
 
 const App = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -35,7 +28,7 @@ const App = () => {
   }
   
   return (
-    <Provider store={store}>
+    <Provider store={configureStore()}>
       <ShopNavigator />
     </Provider>
   )
@@ -44,5 +37,3 @@ const App = () => {
 export default App
 
 const styles = StyleSheet.create({})
-
-export type RootState = ReturnType<typeof rootReducer>

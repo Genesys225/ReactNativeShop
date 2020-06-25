@@ -1,11 +1,7 @@
 import React from 'react'
-import {
-  StyleSheet,
-  Text,
-  View
-} from 'react-native'
-import { useSelector } from 'react-redux';
-import { IProducts } from '../../../store/reducers/products';
+import { StyleSheet } from 'react-native'
+import { useSelector, useDispatch } from 'react-redux';
+import { ProductState } from '../../../store/reducers/products';
 import Product from '../../../models/product';
 import { NavigationStackProp } from 'react-navigation-stack';
 import TNavScreenComp from '../../types/TNavScreenComp';
@@ -15,6 +11,8 @@ import BeButton from '../../common/BeButton';
 import BeText from '../../common/BeText';
 import Colors from '../../../config/colors';
 import H1 from '../../common/H1';
+import { addToCart } from '../../../store/actions/cart';
+import { RootState } from '../../../store/configureStore';
 
 interface ProductDetailsProps {
   navigation: NavigationStackProp<{
@@ -23,17 +21,15 @@ interface ProductDetailsProps {
   }>
 };
 
-interface IState {
-  products: IProducts
-};
-
 const ProductDetails: TNavScreenComp = (props: ProductDetailsProps) => {
   const productId = props.navigation.getParam('productId');
   const selectedProduct = useSelector(
-    (state: IState) => state.products.availableProducts.find(
+    (state: RootState) => state.products.availableProducts.find(
       (prod: Product) => prod.id === productId
     )
   );
+  const dispatch = useDispatch()
+  
   return (
     <ScrollView>
       <BeImg 
@@ -44,7 +40,7 @@ const ProductDetails: TNavScreenComp = (props: ProductDetailsProps) => {
         color={Colors.primary} 
         style={styles.addBtn} 
         title="Add To Cart" 
-        onPress={() => { }}
+        onPress={() => dispatch(addToCart(selectedProduct as Product))}
       />
       <H1 style={styles.price}>
         ${selectedProduct?.price.toFixed(2)}
