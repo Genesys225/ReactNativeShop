@@ -1,7 +1,16 @@
-import { CartActionTypes } from './../../models/cartActionTypes';
+import { 
+  CartActionTypes, 
+  REMOVE_FROM_CART, 
+  ADD_TO_CART 
+} from '../../models/cartTypes';
 import Product from "../../models/product"
-import { ADD_TO_CART } from "../../models/cartActionTypes"
+
 
 export const addToCart = (product: Product): CartActionTypes => ({
   type: ADD_TO_CART, payload: product  
+})
+
+
+export const removeFromCart = (productId: string): CartActionTypes => ({
+  type: REMOVE_FROM_CART, payload: productId  
 })

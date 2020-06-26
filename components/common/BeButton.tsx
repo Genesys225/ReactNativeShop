@@ -1,5 +1,6 @@
 import React from 'react'
 import { StyleSheet, View, Button, ButtonProps, ViewStyle } from 'react-native'
+import Colors from '../../config/colors'
 
 interface BeButtonProps extends ButtonProps {
   style?: ViewStyle,
@@ -8,7 +9,7 @@ interface BeButtonProps extends ButtonProps {
 const BeButton = (props: BeButtonProps) => {
   return (
     <View style={{...styles.button, ...props.style}}>
-      <Button {...props}/>
+      <Button color={Colors.primary} {...props}/>
     </View>
   )
 }

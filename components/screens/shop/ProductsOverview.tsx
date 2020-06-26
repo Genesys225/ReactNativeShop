@@ -51,18 +51,20 @@ const ProductsOverview: TNavScreenComp = (props: ProductsOverviewProps) => {
   )
 }
 
-ProductsOverview.navigationOptions = {
+ProductsOverview.navigationOptions = (navData) => ({
   headerTitle: 'All Products',
   headerRight: () => (
     <HeaderButtons HeaderButtonComponent={BeHeaderBtn}>
       <Item 
         title='Cart' 
         iconName={ Platform.OS === 'android' ? 'md-cart' : 'ios-cart' } 
-        onPress={()=>{}}
+        onPress={()=>{
+          navData.navigation.navigate('Cart')
+        }}
       />
     </HeaderButtons>
   )
-}
+})
 
 export default ProductsOverview
 

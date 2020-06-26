@@ -1,25 +1,27 @@
-import { CartActionTypes, ADD_TO_CART } from './../../models/cartActionTypes';
-import CartItem from '../../models/cart-item';
-
-export interface CartState {
-  items: {
-    [name: string]: CartItem
-  },
-  totalAmount: number
-}
+import CartItem, {
+  CartActionTypes,
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
+  CartState,
+  CartItemList
+} from '../../models/cartTypes';
+import Product from '../../models/product';
 
 const initialState: CartState = {
   items: {},
   totalAmount: 0
 };
 
-const cartReducer = (state = initialState, action: CartActionTypes) => {
+const cartReducer = (
+  state = initialState,
+  action: CartActionTypes
+): CartState => {
   switch (action.type) {
-    case ADD_TO_CART:
-      const {items, totalAmount} = state
-      const {price, title, id} = action.payload;
+    case ADD_TO_CART: {
+      const { items, totalAmount } = state
+      const { price, title, id } = action.payload as Product;
       let newOrUpdatedCartItem: CartItem
-      if (items[id]){
+      if (items[id]) {
         newOrUpdatedCartItem = {
           quantity: items[id].quantity + 1,
           price,
@@ -41,7 +43,33 @@ const cartReducer = (state = initialState, action: CartActionTypes) => {
         },
         totalAmount: totalAmount + price
       }
-  
+    }
+    case REMOVE_FROM_CART: {
+      let updatedCartItems: CartItemList
+      const productId = action.payload as string
+      const currentItemQty = state.items[productId].quantity;
+      const price = state.items[productId].price;
+      if (currentItemQty > 1) {
+        const currentSum = state.items[productId].sum;
+        const updatedCartItem: CartItem = {
+          ...state.items[productId],
+          quantity: currentItemQty - 1,
+          sum: currentSum - price
+        }
+        updatedCartItems = {
+          ...state.items,
+          [productId]: updatedCartItem
+        }
+      } else {
+        updatedCartItems = { ...state.items }
+        delete updatedCartItems[productId]
+      }
+      return {
+        items: updatedCartItems,
+        totalAmount: state.totalAmount - price
+      }
+    }
+
     default:
       return state;
   }
