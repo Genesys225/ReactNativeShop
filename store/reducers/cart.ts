@@ -1,3 +1,4 @@
+import { DELETE_PRODUCT } from './../../models/product';
 import CartItem, {
   CartActionTypes,
   ADD_TO_CART,
@@ -6,6 +7,7 @@ import CartItem, {
   CartItemList
 } from '../../models/cartTypes';
 import Product from '../../models/product';
+import { ADD_ORDER } from '../../models/orderTypes';
 
 const initialState: CartState = {
   items: {},
@@ -26,14 +28,14 @@ const cartReducer = (
           quantity: items[id].quantity + 1,
           price,
           title,
-          sum: items[id].sum + price
+          sum: items[id].sum + price,
         }
       } else {
         newOrUpdatedCartItem = {
           quantity: 1,
           price,
           title,
-          sum: price
+          sum: price,
         }
       }
       return {
@@ -69,6 +71,21 @@ const cartReducer = (
         totalAmount: state.totalAmount - price
       }
     }
+    case ADD_ORDER:
+      return initialState
+    case DELETE_PRODUCT:
+      const productId = action.payload as string
+      if (!state.items[productId]) {
+        return state
+      }
+      const updatedItems = { ...state.items }
+      const itemTotal = updatedItems[productId].sum
+      delete updatedItems[productId]
+      return {
+        items: updatedItems,
+        totalAmount: state.totalAmount - itemTotal
+      }
+
 
     default:
       return state;

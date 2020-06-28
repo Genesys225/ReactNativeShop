@@ -1,3 +1,10 @@
+export const DELETE_PRODUCT = "DELETE_PRODUCT"
+
+export interface DeleteProduct {
+  type: "DELETE_PRODUCT"
+  payload: string
+}
+
 export default class Product {
   public id: string
   public ownerId: string

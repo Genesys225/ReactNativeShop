@@ -1,4 +1,4 @@
-import React, { ComponentType } from 'react'
+import React, { ComponentType, ReactNode } from 'react'
 import {
   StyleSheet,
   View,
@@ -11,16 +11,13 @@ import {
 } from 'react-native'
 import BeImg from '../common/BeImg'
 import BeText from '../common/BeText'
-import MainButton from '../common/MainButton'
 import Card from '../common/Card'
 import Product from '../../models/product'
-import BeButton from '../common/BeButton'
-import Colors from '../../config/colors'
 import H1 from '../common/H1'
 
 export interface ProductItemProps extends Omit<Product, 'id'|'ownerId'> {
-  onViewDetails: (event: GestureResponderEvent) => void,
-  onViewCart: (event: GestureResponderEvent) => void
+  onSelect: (event: GestureResponderEvent) => void,
+  children?: ReactNode
 }
 
 const ProductItem = (props: ProductItemProps) => {
@@ -32,7 +29,7 @@ const ProductItem = (props: ProductItemProps) => {
   return (
     <Card style={styles.product}>
       <View style={styles.touchable}>
-        <TouchableComponent onPress={props.onViewDetails} useForeground>
+        <TouchableComponent onPress={props.onSelect} useForeground>
           <View>
             <BeImg style={styles.image} source={{uri: props.imageUrl}} />
             <View style={styles.details}>
@@ -40,17 +37,7 @@ const ProductItem = (props: ProductItemProps) => {
               <BeText style={styles.price}>${props.price.toFixed(2)}</BeText>
             </View>
             <View style={styles.actionsContainer}>
-              <BeButton 
-                title="View Details" 
-                style={{width: 'auto'}}
-                color={Colors.primary}
-                onPress={props.onViewDetails} 
-                />
-              <BeButton 
-                title="To Cart"
-                color={Colors.accent}
-                onPress={props.onViewCart} 
-                />
+              {props.children}
             </View>
           </View>
         </TouchableComponent>

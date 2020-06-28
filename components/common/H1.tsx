@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { StyleSheet, Text, View, TextProps, TextStyle } from 'react-native'
+import { StyleSheet, Text, TextProps, TextStyle } from 'react-native'
 
 interface H1Props extends TextProps {
   style?: TextStyle,

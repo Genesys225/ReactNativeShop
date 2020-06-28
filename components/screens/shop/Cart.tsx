@@ -18,12 +18,12 @@ const Cart = () => {
     const transformedCartItems = [];
     for (const key in state.cart.items) {
       transformedCartItems.push({
-        productId: key,
+        id: key,
         ...state.cart.items[key]
       })
     }
     return transformedCartItems
-      .sort((a, b) => a.productId > b.productId ? 1 : -1)
+      .sort((a, b) => a.id > b.id ? 1 : -1)
   })
   const dispatch = useDispatch()
   return (
@@ -31,7 +31,7 @@ const Cart = () => {
       <Card style={styles.summary}>
         <H1 style={styles.summaryText}>
           Total: <Text style={styles.amount}>
-            ${cartTotalAmount.toFixed(2)}
+            ${Math.round(+cartTotalAmount.toFixed(2) * 100) / 100}
           </Text>
         </H1>
         <BeButton
@@ -43,18 +43,22 @@ const Cart = () => {
       </Card>
       <FlatList
         data={cartItems}
-        keyExtractor={item => item.productId}
+        keyExtractor={item => item.id}
         renderItem={itemData => (
           <CartItem
             {...itemData.item}
             onRemove={() => {
-              dispatch(removeFromCart(itemData.item.productId))
+              dispatch(removeFromCart(itemData.item.id))
             }}
           />
         )}
       />
     </View>
   )
+}
+
+Cart.navigationOptions = {
+  headerTitle: 'Your cart'
 }
 
 export default Cart

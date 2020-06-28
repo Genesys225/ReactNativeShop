@@ -1,7 +1,6 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux';
-import { ProductState } from '../../../store/reducers/products';
 import Product from '../../../models/product';
 import { NavigationStackProp } from 'react-navigation-stack';
 import TNavScreenComp from '../../types/TNavScreenComp';

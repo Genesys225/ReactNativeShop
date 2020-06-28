@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { StyleSheet, Text, View, TextProps, TextStyle } from 'react-native'
+import { StyleSheet, Text, TextProps, TextStyle } from 'react-native'
 
 interface BeTextProps extends TextProps {
   children: ReactNode|string|number|Text|any[],
@@ -16,6 +16,7 @@ export default BeText
 
 const styles = StyleSheet.create({
   body: {
-    fontFamily: 'open-sans'
+    fontFamily: 'open-sans',
+    fontSize: 16
   }
 })

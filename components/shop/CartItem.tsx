@@ -5,10 +5,11 @@ import MainButton from '../common/MainButton'
 import CartItem from '../../models/cartTypes'
 
 interface CartItemProps extends CartItem {
-  onRemove: ()=>void
+  onRemove?: ()=>void | false
 }
 
 const CartItemComp = (props: CartItemProps) => {
+  const onRemove = props.onRemove || false;
   return (
     <View style={styles.cartItem}>
       <View style={styles.itemData}>
@@ -17,15 +18,15 @@ const CartItemComp = (props: CartItemProps) => {
       </View>
       <View style={styles.itemData}>
         <BeText style={styles.mainText}>{props.sum.toFixed(2)}</BeText>
-        <MainButton 
+        {onRemove && <MainButton 
           iconName={
             Platform.OS === 'android' ? 'md-trash' : 'ios-trash'
           }
           iconColor='red'
           iconSize={23}
-          onPress={props.onRemove}
+          onPress={onRemove}
           style={styles.deleteBtn}
-        />
+        />}
       </View>
     </View>
   )
