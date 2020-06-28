@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Platform } from 'react-native'
+import { StyleSheet, Platform, Alert } from 'react-native'
 import { FlatList } from 'react-native-gesture-handler'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../../../store/configureStore'
@@ -9,15 +9,32 @@ import BeHeaderBtn from '../../common/BeHeaderBtn'
 import BeButton from '../../common/BeButton'
 import Colors from '../../../config/colors'
 import { deleteProduct } from '../../../store/actions/products'
+import { NavigationStackOptions, NavigationStackProp } from 'react-navigation-stack'
 
-const UserProducts = (props) => {
+type Props = {
+  navigation: NavigationStackProp
+  navigationOptions: NavigationStackOptions
+}
+
+const UserProducts = (props: Props) => {
   const dispatch = useDispatch()
   const userProducts = useSelector((state: RootState) => (
     state.products.userProducts
   ))
 
   const editProductHandler = (id: string) => {
-    props.navigation.navigate('EditProduct', {productId: id})
+    props.navigation.navigate('EditProduct', { productId: id })
+  }
+
+  const deleteHandler = (productId: string) => {
+    Alert.alert('Are you sure?', 'Do you really want to delete this item?', [
+      { text: 'No', style: 'default' },
+      {
+        text: 'Yes', style: 'destructive', onPress: () => {
+          dispatch(deleteProduct(productId))
+        }
+      }
+    ])
   }
 
   return (
@@ -26,31 +43,29 @@ const UserProducts = (props) => {
       renderItem={itemData => (
         <ProductItem
           {...itemData.item}
-          onSelect={()=>{
+          onSelect={() => {
             editProductHandler(itemData.item.id)
           }}
-          >
-          <BeButton 
-            title="Edit details" 
-            style={{width: 'auto'}}
-            onPress={()=>{
+        >
+          <BeButton
+            title="Edit details"
+            style={{ width: 'auto' }}
+            onPress={() => {
               editProductHandler(itemData.item.id)
-            }} 
+            }}
             color={Colors.accent}
           />
-          <BeButton 
+          <BeButton
             title="Delete"
-            onPress={() => {
-              dispatch(deleteProduct(itemData.item.id))
-            }} 
-            />
-          </ProductItem>
+            onPress={deleteHandler.bind(UserProducts, itemData.item.id)}
+          />
+        </ProductItem>
       )}
     />
   )
 }
 
-UserProducts.navigationOptions = navData => {
+UserProducts.navigationOptions = (navData: Props) => {
   return {
     headerTitle: 'Your Products',
     headerLeft: () => (
