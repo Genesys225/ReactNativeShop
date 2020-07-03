@@ -17,13 +17,14 @@ interface BeInputProps extends TextInputProps {
 	labelStyle?: TextStyle;
 	inputStyle?: TextStyle;
 	errorText?: string;
-	isInvalid?: boolean;
+	initialValidity?: boolean;
+	initialValue?: string;
 	required?: boolean;
 	type?: string;
 	min?: number;
 	max?: number;
 	minLength?: number;
-	onInput: (name: string, text: string, isInvalid: boolean) => any;
+	onInput: (name: string, text: string, isValid: boolean) => any;
 	name: string;
 }
 
@@ -32,15 +33,15 @@ const INPUT_BLUR = 'INPUT_BLUR';
 
 interface InputState {
 	value: string;
-	isInvalid: boolean;
+	isValid: boolean;
 	touched: boolean;
 }
 
 interface InputChangeAction {
-	type: 'INPUT_CHANGE';
+	type: string;
 	payload: {
 		value: string;
-		isInvalid: boolean;
+		isValid: boolean;
 	};
 }
 
@@ -48,18 +49,17 @@ interface BlurAction {
 	type: 'INPUT_BLUR';
 }
 
-type InputActions = InputChangeAction | BlurAction;
-
 const beInputReducer = (
 	state: InputState,
-	action: InputActions
+	action: InputChangeAction | BlurAction
 ): InputState => {
 	switch (action.type) {
 		case INPUT_CHANGE:
+			const { payload } = action as InputChangeAction;
 			return {
 				...state,
-				value: action.payload.value,
-				isInvalid: action.payload.isInvalid,
+				value: payload.value,
+				isValid: payload.isValid,
 			};
 		case INPUT_BLUR:
 			return {
@@ -74,8 +74,9 @@ const beInputReducer = (
 
 const BeInput = (props: BeInputProps) => {
 	const initialState = {
-		value: props.value || '',
-		isInvalid: props.isInvalid || false,
+		value: props.initialValue || '',
+		isValid:
+			props.initialValidity === undefined ? false : props.initialValidity,
 		touched: false,
 	};
 	const {
@@ -85,18 +86,22 @@ const BeInput = (props: BeInputProps) => {
 		inputStyle,
 		labelStyle,
 		onInput,
+		errorText,
+		initialValue: _initialValue,
 		value: _value,
 		...filteredProps
 	} = props;
-	const [inputState, dispatch] = useReducer(beInputReducer, initialState);
-	const { value, isInvalid } = inputState;
+	const [inputState, inputDispatch] = useReducer(
+		beInputReducer,
+		initialState
+	);
 	useEffect(() => {
 		if (inputState.touched) {
-			onInput(value, props.name, isInvalid);
+			onInput(name, inputState.value, inputState.isValid);
 		}
-	}, [inputState, onInput]);
+	}, [inputState, onInput, name]);
 
-	const onChangeHandler = (text: string): void => {
+	const onChangeTextHandler = (text: string) => {
 		const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		let isValid = true;
 		if (props.required && text.trim().length === 0) {
@@ -114,18 +119,17 @@ const BeInput = (props: BeInputProps) => {
 		if (props.minLength !== undefined && text.length < props.minLength) {
 			isValid = false;
 		}
-		dispatch({
+		inputDispatch({
 			type: INPUT_CHANGE,
 			payload: {
 				value: text,
-				isInvalid: !isValid,
+				isValid,
 			},
 		});
-		onInput(name, text, isInvalid);
 	};
 
 	const lostFocus = () => {
-		dispatch({ type: INPUT_BLUR });
+		inputDispatch({ type: INPUT_BLUR });
 	};
 
 	return (
@@ -138,12 +142,14 @@ const BeInput = (props: BeInputProps) => {
 					style={{ ...styles.input, ...inputStyle }}
 					{...filteredProps}
 					value={inputState.value}
-					onChangeText={onChangeHandler}
+					onChangeText={onChangeTextHandler}
 					onBlur={lostFocus}
 				/>
 			</View>
-			{isInvalid && (
-				<BeText style={styles.errorText}>{props.errorText}</BeText>
+			{!inputState.isValid && inputState.touched && (
+				<View style={styles.errorContainer}>
+					<BeText style={styles.errorText}>{errorText}</BeText>
+				</View>
 			)}
 		</View>
 	);
@@ -172,5 +178,8 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		paddingHorizontal: 2,
 		paddingVertical: 5,
+	},
+	errorContainer: {
+		marginVertical: 5,
 	},
 });

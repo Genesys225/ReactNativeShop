@@ -23,9 +23,9 @@ export default (
 ): ProductState => {
   switch (action.type) {
     case CREATE_PRODUCT:
-      const { title, description, imageUrl, price } = action.payload
+      const { title, description, imageUrl, price, id } = action.payload
       const newProduct = new Product(
-        Math.random().toString(),
+        id,
         'u1',
         title,
         imageUrl,

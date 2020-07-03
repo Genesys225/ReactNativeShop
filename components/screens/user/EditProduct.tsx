@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useReducer } from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
+import { StyleSheet, View, Platform, KeyboardAvoidingView } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import BeInput from '../../common/BeInput';
 import { Item, HeaderButtons } from 'react-navigation-header-buttons';
@@ -31,7 +31,7 @@ type FormActions = {
 	payload: {
 		text: string;
 		name: string;
-		isInvalid: boolean;
+		isValid: boolean;
 	};
 };
 
@@ -44,7 +44,7 @@ const formReducer = (state: FormState, action: FormActions): FormState => {
 			const updatedState: FormState = { ...state };
 			const name = action.payload.name;
 			updatedState.inputValues[name] = action.payload.text;
-			updatedState.inputValidities[name] = !action.payload.isInvalid;
+			updatedState.inputValidities[name] = action.payload.isValid;
 			updatedState.formIsValid = formIsValid(state);
 			return updatedState;
 
@@ -60,9 +60,10 @@ const EditProduct = (props: EditProductProps) => {
 	);
 	const [formState, dispatcher] = useReducer(formReducer, {
 		inputValues: {
-			title: editedProduct ? editedProduct.title : '',
-			imageUrl: editedProduct ? editedProduct.imageUrl : '',
-			description: editedProduct ? editedProduct.description : '',
+			title: editedProduct !== undefined ? editedProduct.title : '',
+			imageUrl: editedProduct !== undefined ? editedProduct.imageUrl : '',
+			description:
+				editedProduct !== undefined ? editedProduct.description : '',
 			price: '',
 		},
 		inputValidities: {
@@ -100,16 +101,15 @@ const EditProduct = (props: EditProductProps) => {
 		props.navigation.setParams({ submit: submitHandler });
 	}, [submitHandler]);
 
-	const inputChangeHandler = (
-		name: string,
-		text: string,
-		isInvalid: boolean
-	) => {
-		dispatcher({
-			type: 'UPDATE_INPUT',
-			payload: { text, name, isInvalid },
-		});
-	};
+	const inputChangeHandler = useCallback(
+		(name: string, text: string, isValid: boolean) => {
+			dispatcher({
+				type: 'UPDATE_INPUT',
+				payload: { text, name, isValid },
+			});
+		},
+		[dispatcher]
+	);
 
 	const {
 		title: titleValid,
@@ -119,55 +119,64 @@ const EditProduct = (props: EditProductProps) => {
 	} = formState.inputValidities;
 
 	return (
-		<ScrollView>
-			<View style={styles.form}>
-				<BeInput
-					label="Title"
-					value={title}
-					name="title"
-					required
-					onInput={inputChangeHandler.bind(EditProduct)}
-					autoCapitalize="sentences"
-					autoCorrect
-					autoFocus={!editedProduct}
-					returnKeyType="next"
-					isInvalid={!titleValid}
-					errorText="Title is Invalid"
-				/>
-				<BeInput
-					label="Image URL"
-					name="imageUrl"
-					value={imageUrl}
-					onInput={inputChangeHandler.bind(EditProduct)}
-					returnKeyType="next"
-					isInvalid={!imageUrlValid}
-					errorText="Image Url is Invalid"
-				/>
-				{!editedProduct && (
+		<KeyboardAvoidingView
+			style={styles.kbAvoid}
+			behavior="height"
+			keyboardVerticalOffset={100}
+		>
+			<ScrollView>
+				<View style={styles.form}>
 					<BeInput
-						label="Price"
-						name="price"
-						value={price}
-						onInput={inputChangeHandler.bind(EditProduct)}
-						keyboardType="decimal-pad"
+						label="Title"
+						initialValue={title}
+						name="title"
+						required
+						onInput={inputChangeHandler}
+						autoCapitalize="sentences"
+						autoCorrect
+						autoFocus={!!editedProduct}
 						returnKeyType="next"
-						isInvalid={!priceValid}
-						errorText="The price entered is Invalid"
+						initialValidity={titleValid}
+						errorText="Title is Invalid"
 					/>
-				)}
-				<BeInput
-					label="Description"
-					name="description"
-					value={description}
-					onInput={inputChangeHandler.bind(EditProduct)}
-					returnKeyType="done"
-					isInvalid={!descriptionValid}
-					errorText="The descriptionValid entered is Invalid"
-					multiline
-					numberOfLines={3}
-				/>
-			</View>
-		</ScrollView>
+					<BeInput
+						label="Image URL"
+						name="imageUrl"
+						initialValue={imageUrl}
+						onInput={inputChangeHandler}
+						returnKeyType="next"
+						required
+						initialValidity={imageUrlValid}
+						errorText="Image Url is Invalid"
+					/>
+					{!editedProduct && (
+						<BeInput
+							label="Price"
+							name="price"
+							required
+							initialValue={price}
+							onInput={inputChangeHandler}
+							keyboardType="decimal-pad"
+							returnKeyType="next"
+							initialValidity={priceValid}
+							errorText="The price entered is Invalid"
+						/>
+					)}
+					<BeInput
+						label="Description"
+						name="description"
+						initialValue={description}
+						onInput={inputChangeHandler}
+						returnKeyType="done"
+						initialValidity={descriptionValid}
+						errorText="The descriptionValid entered is Invalid"
+						required
+						multiline
+						numberOfLines={3}
+					/>
+				</View>
+			</ScrollView>
+		</KeyboardAvoidingView>
 	);
 };
 
@@ -204,5 +213,8 @@ export default EditProduct;
 const styles = StyleSheet.create({
 	form: {
 		margin: 20,
+	},
+	kbAvoid: {
+		flex: 1,
 	},
 });
