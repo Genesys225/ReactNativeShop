@@ -2,7 +2,8 @@ import {
   DELETE_PRODUCT,
   UPDATE_PRODUCT,
   CREATE_PRODUCT,
-  ProductActionTypes
+  ProductActionTypes,
+  HYDRATE_PRODUCTS
 } from './../../models/product';
 import PRODUCTS from "../../data/dummy-data";
 import Product from "../../models/product";
@@ -42,6 +43,12 @@ export default (
           newProduct
         ]
       }
+    case HYDRATE_PRODUCTS:
+      const newState = {
+        availableProducts: action.payload,
+        userProducts: action.payload.filter(product => product.ownerId === 'u1')
+      }
+      return newState
     case UPDATE_PRODUCT:
       const productId = action.payload.id
       const productIndex = state.userProducts.findIndex(

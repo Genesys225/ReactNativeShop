@@ -14,7 +14,7 @@ export interface CreateProduct {
 }
 export interface HydrateProducts {
   type: 'HYDRATE_PRODUCTS';
-  payload: Pick<RootState, 'products'>;
+  payload: Product[]
 }
 export interface UpdateProduct {
   type: 'UPDATE_PRODUCT';

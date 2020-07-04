@@ -3,12 +3,12 @@ import Product from "./product"
 export const ADD_TO_CART = 'ADD_TO_CART'
 export const REMOVE_FROM_CART = 'REMOVE_FROM_CART'
 
-interface AddToCartAction {
+export interface AddToCartAction {
   type: string
   payload: Product
 }
 
-interface RemoveFromCartAction {
+export interface RemoveFromCartAction {
   type: string
   payload: string
 }

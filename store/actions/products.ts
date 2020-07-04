@@ -9,13 +9,14 @@ import Product, {
   UPDATE_PRODUCT,
   DELETE_PRODUCT,
 } from './../../models/product';
+import { ThunkAction } from 'redux-thunk';
 
 type ICreateProduct = (
   title: string,
   description: string,
   imageUrl: string,
   price: number
-) => (dispatch: (arg0: CreateProduct) => void) => void;
+) => ThunkAction<Promise<void>, RootState, {}, CreateProduct>;
 
 export const createProduct: ICreateProduct = (
   title,
@@ -40,7 +41,6 @@ export const createProduct: ICreateProduct = (
       }
     );
     const resData = await response.json();
-    console.log(resData);
 
     dispatch({
       type: CREATE_PRODUCT,
@@ -55,19 +55,29 @@ export const createProduct: ICreateProduct = (
   };
 };
 
-type IHydrateProduct = () => (
-  dispatch: (arg0: HydrateProducts) => void
-) => void;
+type IHydrateProduct = () => ThunkAction<Promise<void>, RootState, {}, HydrateProducts>
 
 export const hydrateProducts: IHydrateProduct = () => {
-  return async (dispatch) => {
+  return async dispatch => {
     const response = await fetch(
       'https://rn-academind-training.firebaseio.com/products.json'
     );
-    const resData = await response.json();
-    console.log(resData);
+    const resData = await response.json() as Product[];
+    const loadedProducts = [];
+    for (const productKey in resData) {
+      const product = resData[productKey]
+      loadedProducts.push({
+        id: productKey,
+        ownerId: 'u1',
+        title: product.title,
+        imageUrl: product.imageUrl,
+        description: product.description,
+        price: +product.price
+      })
+    }
 
-    dispatch({ type: HYDRATE_PRODUCTS, payload: resData });
+    dispatch({ type: HYDRATE_PRODUCTS, payload: loadedProducts });
+    return;
   };
 };
 

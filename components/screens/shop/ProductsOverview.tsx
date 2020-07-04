@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	StyleSheet,
 	FlatList,
@@ -7,7 +7,7 @@ import {
 	Platform,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import Product from '../../../models/product';
+import Product, { HydrateProducts } from '../../../models/product';
 import ProductItem, { ProductItemProps } from '../../shop/ProductItem';
 import { NavigationStackProp } from 'react-navigation-stack';
 import { addToCart } from '../../../store/actions/cart';
@@ -17,20 +17,28 @@ import BeHeaderBtn from '../../common/BeHeaderBtn';
 import BeButton from '../../common/BeButton';
 import Colors from '../../../config/colors';
 import { hydrateProducts } from '../../../store/actions/products';
+import { ThunkDispatch } from 'redux-thunk';
+import { Action } from 'redux';
 
 interface ProductsOverviewProps {
 	navigation: NavigationStackProp;
 }
 
 const ProductsOverview = (props: ProductsOverviewProps) => {
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const products = useSelector(
 		(state: RootState): Product[] => state.products.availableProducts
 	);
+	const thunkDispatch = useDispatch() as ThunkDispatch<
+		RootState,
+		{},
+		Action<HydrateProducts>
+	>;
 	const dispatch = useDispatch();
 
 	useEffect(() => {
-		dispatch(hydrateProducts());
-	}, [dispatch]);
+		thunkDispatch(hydrateProducts()).then(() => setIsLoading(false));
+	}, [thunkDispatch]);
 
 	const renderItem: ListRenderItem<Product> = (itemData) => {
 		const onSelect = () => {
@@ -64,7 +72,7 @@ const ProductsOverview = (props: ProductsOverviewProps) => {
 		);
 	};
 
-	return <FlatList data={products} renderItem={renderItem} />;
+	return !isLoading && <FlatList data={products} renderItem={renderItem} />;
 };
 
 ProductsOverview.navigationOptions = (navData: any) => ({
