@@ -77,7 +77,7 @@ const BeInput = (props: BeInputProps) => {
 		value: props.initialValue || '',
 		isValid:
 			props.initialValidity === undefined ? false : props.initialValidity,
-		touched: false,
+		touched: props.initialValidity,
 	};
 	const {
 		style,

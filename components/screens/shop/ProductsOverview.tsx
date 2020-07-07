@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
 	StyleSheet,
 	FlatList,
 	ListRenderItem,
 	View,
 	Platform,
+	ActivityIndicator,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Product, { HydrateProducts } from '../../../models/product';
@@ -36,9 +37,25 @@ const ProductsOverview = (props: ProductsOverviewProps) => {
 	>;
 	const dispatch = useDispatch();
 
-	useEffect(() => {
-		thunkDispatch(hydrateProducts()).then(() => setIsLoading(false));
+	const fetchProducts = useCallback(async () => {
+		setIsLoading(true);
+		await thunkDispatch(hydrateProducts());
+		setIsLoading(false);
 	}, [thunkDispatch]);
+
+	useEffect(() => {
+		const willFocus = props.navigation.addListener(
+			'willFocus',
+			fetchProducts
+		);
+		return () => {
+			willFocus.remove();
+		};
+	}, [fetchProducts]);
+
+	useEffect(() => {
+		fetchProducts();
+	}, [fetchProducts]);
 
 	const renderItem: ListRenderItem<Product> = (itemData) => {
 		const onSelect = () => {
@@ -72,7 +89,15 @@ const ProductsOverview = (props: ProductsOverviewProps) => {
 		);
 	};
 
-	return !isLoading && <FlatList data={products} renderItem={renderItem} />;
+	if (isLoading) {
+		return (
+			<View style={styles.centered}>
+				<ActivityIndicator size="large" color={Colors.primary} />
+			</View>
+		);
+	}
+
+	return <FlatList data={products} renderItem={renderItem} />;
 };
 
 ProductsOverview.navigationOptions = (navData: any) => ({
@@ -107,4 +132,5 @@ const styles = StyleSheet.create({
 	itemContainer: {
 		flex: 1,
 	},
+	centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

@@ -60,10 +60,9 @@ const EditProduct = (props: EditProductProps) => {
 	);
 	const [formState, dispatcher] = useReducer(formReducer, {
 		inputValues: {
-			title: editedProduct !== undefined ? editedProduct.title : '',
-			imageUrl: editedProduct !== undefined ? editedProduct.imageUrl : '',
-			description:
-				editedProduct !== undefined ? editedProduct.description : '',
+			title: editedProduct ? editedProduct.title : '',
+			imageUrl: editedProduct ? editedProduct.imageUrl : '',
+			description: editedProduct ? editedProduct.description : '',
 			price: '',
 		},
 		inputValidities: {
@@ -138,6 +137,7 @@ const EditProduct = (props: EditProductProps) => {
 						returnKeyType="next"
 						initialValidity={titleValid}
 						errorText="Title is Invalid"
+						blurOnSubmit
 					/>
 					<BeInput
 						label="Image URL"

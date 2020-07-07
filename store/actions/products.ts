@@ -1,3 +1,4 @@
+import { http } from './../http';
 import { RootState } from './../configureStore';
 import Product, {
   CreateProduct,
@@ -25,55 +26,49 @@ export const createProduct: ICreateProduct = (
   price
 ) => {
   return async (dispatch) => {
-    const response = await fetch(
-      'https://rn-academind-training.firebaseio.com/products.json',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          price,
-          title,
-          imageUrl,
-          description,
-        }),
-      }
+    const newProduct = {
+      price,
+      title,
+      imageUrl,
+      description,
+    }
+    const response = await http.post(
+      'products.json',
+      newProduct
     );
     const resData = await response.json();
-
     dispatch({
       type: CREATE_PRODUCT,
       payload: {
-        title,
-        description,
-        imageUrl,
-        price,
+        ...newProduct,
         id: resData.name,
       },
     });
   };
 };
 
-type IHydrateProduct = () => ThunkAction<Promise<void>, RootState, {}, HydrateProducts>
+type IHydrateProduct = () => ThunkAction<
+  Promise<void>,
+  RootState,
+  {},
+  HydrateProducts
+>;
 
 export const hydrateProducts: IHydrateProduct = () => {
-  return async dispatch => {
-    const response = await fetch(
-      'https://rn-academind-training.firebaseio.com/products.json'
-    );
-    const resData = await response.json() as Product[];
+  return async (dispatch) => {
+    const response = await http.get('products.json');
+    const resData = (await response.json()) as Product[];
     const loadedProducts = [];
     for (const productKey in resData) {
-      const product = resData[productKey]
+      const product = resData[productKey];
       loadedProducts.push({
         id: productKey,
-        ownerId: 'u1',
+        ownerId: product.ownerId,
         title: product.title,
         imageUrl: product.imageUrl,
         description: product.description,
-        price: +product.price
-      })
+        price: +product.price,
+      });
     }
 
     dispatch({ type: HYDRATE_PRODUCTS, payload: loadedProducts });
@@ -86,7 +81,7 @@ type IUpdateProduct = (
   title: string,
   imageUrl: string,
   description: string
-) => (dispatch: (arg0: UpdateProduct) => void) => void;
+) => ThunkAction<Promise<void>, RootState, {}, UpdateProduct>;
 
 export const updateProduct: IUpdateProduct = (
   id,
@@ -94,19 +89,16 @@ export const updateProduct: IUpdateProduct = (
   imageUrl,
   description
 ) => {
-  return (dispatch: Function) => {
-    fetch('https://rn-academind-training.firebaseio.com/products.json', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id,
+  return async (dispatch) => {
+    await http.patch(
+      `products/${id}.json`,
+      {
+        ownerId: 'u1',
         title,
         imageUrl,
         description,
-      }),
-    });
+      }
+    );
     dispatch({
       type: UPDATE_PRODUCT,
       payload: {
@@ -119,6 +111,15 @@ export const updateProduct: IUpdateProduct = (
   };
 };
 
-export const deleteProduct = (productId: string): DeleteProduct => {
-  return { type: DELETE_PRODUCT, payload: productId };
+type IDeleteProduct = (
+  productId: string
+) => ThunkAction<Promise<void>, RootState, {}, DeleteProduct>;
+
+export const deleteProduct: IDeleteProduct = productId => {
+  return async dispatch => {
+    await http.delete(
+      `products/${productId}.json`
+    );
+    dispatch({ type: DELETE_PRODUCT, payload: productId })
+  };
 };
