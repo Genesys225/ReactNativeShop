@@ -1,17 +1,42 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, Platform } from 'react-native';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import {
+	StyleSheet,
+	FlatList,
+	Platform,
+	ActivityIndicator,
+} from 'react-native';
 import { RootState } from '../../../store/configureStore';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import BeHeaderBtn from '../../common/BeHeaderBtn';
-import OrderItem from '../../shop/OrderItem';
+import OrderItem from '../../../models/orderTypes';
+import { hydrateOrders } from '../../../store/actions/orders';
+import { useThunk } from '../../hooks/useThunk';
+import OrderItemCom from '../../shop/OrderItem';
 
-const Orders = () => {
-	const orders = useSelector((state: RootState) => state.orders.orders);
+const Orders = (props: any) => {
+	const [orders, isLoading, fetchOrders] = useThunk({
+		reduxSelector: (state: RootState) => state.orders.orders,
+		action: hydrateOrders,
+	});
+
+	useEffect(() => {
+		const willFocus = props.navigation.addListener(
+			'willFocus',
+			fetchOrders
+		);
+		return () => {
+			willFocus.remove();
+		};
+	}, [fetchOrders]);
+
+	if (isLoading) {
+		return <ActivityIndicator />;
+	}
+
 	return (
 		<FlatList
-			data={orders}
-			renderItem={(itemData) => <OrderItem {...itemData.item} />}
+			data={orders as OrderItem[]}
+			renderItem={(itemData) => <OrderItemCom {...itemData.item} />}
 		/>
 	);
 };

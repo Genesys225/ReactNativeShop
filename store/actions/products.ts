@@ -56,8 +56,7 @@ type IHydrateProduct = () => ThunkAction<
 
 export const hydrateProducts: IHydrateProduct = () => {
   return async (dispatch) => {
-    const response = await http.get('products.json');
-    const resData = (await response.json()) as Product[];
+    const resData = await http.get('products.json') as Product[];
     const loadedProducts = [];
     for (const productKey in resData) {
       const product = resData[productKey];
