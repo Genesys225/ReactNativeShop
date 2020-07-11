@@ -12,8 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../config/colors';
 
-interface MainButtonProps
-	extends Omit<TouchableOpacityProps, 'longPressDelayTimeout'> {
+interface MainButtonProps extends TouchableOpacityProps {
 	children?: ReactNode;
 	style?: ViewStyle;
 	onPress: (event: GestureResponderEvent) => void;
@@ -23,6 +22,7 @@ interface MainButtonProps
 	iconSize?: number;
 	textStyle?: TextStyle;
 	color?: string;
+	disabled?: boolean;
 }
 
 const MainButton = (props: MainButtonProps) => {
@@ -34,6 +34,7 @@ const MainButton = (props: MainButtonProps) => {
 		title,
 		children,
 		color,
+		disabled,
 		...filteredProps
 	} = props;
 	const dynamicChildren = children ? (
@@ -47,9 +48,17 @@ const MainButton = (props: MainButtonProps) => {
 	if (color) {
 		style = { ...style, backgroundColor: color };
 	}
+	if (disabled) {
+		style = { ...style, backgroundColor: '#888' };
+		delete filteredProps.onPress;
+	}
 
 	return (
-		<TouchableOpacity activeOpacity={0.6} {...filteredProps}>
+		<TouchableOpacity
+			activeOpacity={0.6}
+			{...filteredProps}
+			disabled={disabled}
+		>
 			<View style={{ ...styles.button, ...style }}>
 				{dynamicChildren}
 			</View>

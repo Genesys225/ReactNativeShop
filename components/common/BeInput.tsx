@@ -20,7 +20,7 @@ interface BeInputProps extends TextInputProps {
 	initialValidity?: boolean;
 	initialValue?: string;
 	required?: boolean;
-	type?: string;
+	type?: 'email' | 'password' | 'number';
 	min?: number;
 	max?: number;
 	minLength?: number;
@@ -80,6 +80,12 @@ const BeInput = (props: BeInputProps) => {
 		touched:
 			props.initialValidity === undefined ? true : props.initialValidity,
 	};
+	const type =
+		props.type === undefined
+			? props.name === 'password' || props.name === 'email'
+				? props.name
+				: 'text'
+			: props.type;
 	const {
 		style,
 		label,
@@ -90,6 +96,11 @@ const BeInput = (props: BeInputProps) => {
 		errorText,
 		initialValue: _initialValue,
 		value: _value,
+		type: _type,
+		required,
+		min,
+		max,
+		minLength,
 		...filteredProps
 	} = props;
 	const [inputState, inputDispatch] = useReducer(
@@ -105,19 +116,29 @@ const BeInput = (props: BeInputProps) => {
 	const onChangeTextHandler = (text: string) => {
 		const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		let isValid = true;
-		if (props.required && text.trim().length === 0) {
+		const textValid = required && text.trim().length === 0;
+		const passwordValid = type === 'password' && text.length < 6;
+		const emailAndValid =
+			type === 'email' && !emailRegex.test(text.toLowerCase());
+		const moreThenMinLength =
+			minLength !== undefined && text.length < minLength;
+
+		if (textValid) {
 			isValid = false;
 		}
-		if (props.type === 'email' && !emailRegex.test(text.toLowerCase())) {
+		if (passwordValid) {
 			isValid = false;
 		}
-		if (props.min !== undefined && +text < props.min) {
+		if (emailAndValid) {
 			isValid = false;
 		}
-		if (props.max !== undefined && +text > props.max) {
+		if (min !== undefined && +text < min) {
 			isValid = false;
 		}
-		if (props.minLength !== undefined && text.length < props.minLength) {
+		if (max !== undefined && +text > max) {
+			isValid = false;
+		}
+		if (moreThenMinLength) {
 			isValid = false;
 		}
 		inputDispatch({
@@ -133,9 +154,35 @@ const BeInput = (props: BeInputProps) => {
 		inputDispatch({ type: INPUT_BLUR });
 	};
 
+	const keyboardSpecificProps = ((type) => {
+		const keyboardProps: TextInputProps = {
+			keyboardType: 'default',
+			autoCapitalize: 'sentences',
+			secureTextEntry: false,
+		};
+		switch (type) {
+			case 'email':
+				const newKeyboardProps: TextInputProps = {
+					...keyboardProps,
+					keyboardType: 'email-address',
+					autoCapitalize: 'none',
+				};
+				return newKeyboardProps;
+			case 'number':
+				keyboardProps.keyboardType = 'numeric';
+				return keyboardProps;
+			case 'password':
+				keyboardProps.autoCapitalize = 'none';
+				keyboardProps.secureTextEntry = true;
+				return keyboardProps;
+			default:
+				return keyboardProps;
+		}
+	})(type);
+
 	return (
 		<View style={styles.inputGroup}>
-			<View style={{ ...styles.inputContainer, ...props.style }}>
+			<View style={{ ...styles.inputContainer, ...style }}>
 				<H1 style={{ ...styles.label, ...labelStyle }}>
 					{props.label}
 				</H1>
@@ -145,6 +192,7 @@ const BeInput = (props: BeInputProps) => {
 					value={inputState.value}
 					onChangeText={onChangeTextHandler}
 					onBlur={lostFocus}
+					{...keyboardSpecificProps}
 				/>
 			</View>
 			{!inputState.isValid && inputState.touched && (

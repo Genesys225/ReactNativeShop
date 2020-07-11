@@ -14,8 +14,8 @@ export interface ProductState {
 }
 
 const initialState: ProductState = {
-  availableProducts: PRODUCTS,
-  userProducts: PRODUCTS.filter(prod => prod.ownerId === 'u1')
+  availableProducts: [],
+  userProducts: []
 };
 
 export default (

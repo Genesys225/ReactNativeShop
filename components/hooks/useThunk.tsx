@@ -6,16 +6,17 @@ interface UseThunkProps {
 	reduxSelector: (state: any) => any;
 	action: any;
 	actionParams?: any | any[];
+	fetchOnInit?: boolean;
 }
-export function useThunk(props: UseThunkProps) {
+export function useThunk(props: UseThunkProps, deps: any[] = []) {
+	const fetchOnInit = props.fetchOnInit === undefined ? true : false;
 	const { action, reduxSelector } = props;
 	const actionParams = Array.isArray(props.actionParams)
 		? props.actionParams
 		: props.actionParams === undefined
-		? false
+		? []
 		: [props.actionParams];
-	const [isLoading, setIsLoading] = useState<boolean>(true);
-	// (state: RootState) => state.orders.orders
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const stateSlice = useSelector(reduxSelector);
 	const thunkDispatch = useDispatch() as ThunkDispatch<
 		DefaultRootState,
@@ -25,12 +26,15 @@ export function useThunk(props: UseThunkProps) {
 
 	const effect = useCallback(async () => {
 		setIsLoading(true);
-		await thunkDispatch(actionParams ? action(...actionParams) : action());
+		await thunkDispatch(
+			actionParams.length > 0 ? action(...actionParams) : action()
+		);
 		setIsLoading(false);
-	}, [thunkDispatch]);
+		return;
+	}, [thunkDispatch, ...actionParams, ...deps]);
 
 	useEffect(() => {
-		effect();
+		if (fetchOnInit) effect();
 	}, [effect]);
 
 	return [stateSlice, isLoading, effect];

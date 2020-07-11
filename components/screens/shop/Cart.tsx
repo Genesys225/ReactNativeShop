@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
 	StyleSheet,
 	Text,
@@ -6,7 +6,6 @@ import {
 	FlatList,
 	ActivityIndicator,
 } from 'react-native';
-import BeButton from '../../common/BeButton';
 import { RootState } from '../../../store/configureStore';
 import { useSelector, useDispatch } from 'react-redux';
 import Card from '../../common/Card';
@@ -35,11 +34,12 @@ const Cart = () => {
 
 	const dispatch = useDispatch();
 
-	const submitOrderHandler = async () => {
+	const submitOrderHandler = useCallback(async () => {
 		setIsLoading(true);
 		await dispatch(addOrder(cartItems, cartTotalAmount));
 		setIsLoading(false);
-	};
+	}, [dispatch]);
+
 	return (
 		<View style={styles.body}>
 			<Card style={styles.summary}>
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
 		color: Colors.accent,
 	},
 	orderBtn: {
-		borderRadius: 5,
+		borderRadius: 2,
 		paddingVertical: 0,
 		paddingHorizontal: 0,
 		height: 35,

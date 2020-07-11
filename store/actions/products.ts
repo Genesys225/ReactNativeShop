@@ -1,4 +1,4 @@
-import { http } from './../http';
+import { api } from '../../config/http';
 import { RootState } from './../configureStore';
 import Product, {
   CreateProduct,
@@ -25,16 +25,18 @@ export const createProduct: ICreateProduct = (
   imageUrl,
   price
 ) => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     const newProduct = {
       price,
       title,
       imageUrl,
       description,
     }
-    const response = await http.post(
+    const token = getState().auth.token
+    const response = await api.post(
       'products.json',
-      newProduct
+      newProduct,
+      { auth: token }
     );
     const resData = await response.json();
     dispatch({
@@ -56,7 +58,7 @@ type IHydrateProduct = () => ThunkAction<
 
 export const hydrateProducts: IHydrateProduct = () => {
   return async (dispatch) => {
-    const resData = await http.get('products.json') as Product[];
+    const resData = await api.get('products.json') as Product[];
     const loadedProducts = [];
     for (const productKey in resData) {
       const product = resData[productKey];
@@ -88,15 +90,17 @@ export const updateProduct: IUpdateProduct = (
   imageUrl,
   description
 ) => {
-  return async (dispatch) => {
-    await http.patch(
+  return async (dispatch, getState) => {
+    const token = getState().auth.token
+    await api.patch(
       `products/${id}.json`,
       {
         ownerId: 'u1',
         title,
         imageUrl,
         description,
-      }
+      },
+      { auth: token }
     );
     dispatch({
       type: UPDATE_PRODUCT,
@@ -115,9 +119,11 @@ type IDeleteProduct = (
 ) => ThunkAction<Promise<void>, RootState, {}, DeleteProduct>;
 
 export const deleteProduct: IDeleteProduct = productId => {
-  return async dispatch => {
-    await http.delete(
-      `products/${productId}.json`
+  return async (dispatch, getState) => {
+    const token = getState().auth.token
+    await api.delete(
+      `products/${productId}.json`,
+      { auth: token }
     );
     dispatch({ type: DELETE_PRODUCT, payload: productId })
   };

@@ -1,4 +1,4 @@
-import { http } from './../http';
+import { api } from '../../config/http';
 import { RootState } from './../configureStore';
 import OrderItem, {
   AddOrder,
@@ -20,11 +20,10 @@ type IAddOrder = (
 export const addOrder: IAddOrder = (cartItems, totalAmount) => {
   return async (dispatch) => {
     const newOrder = { items: cartItems, totalAmount, date: new Date() };
-    const response = (await http.post(
+    const response = (await api.post(
       'orders.json',
       newOrder
     )) as NewOrderResponse;
-    console.log(response);
     dispatch({
       type: ADD_ORDER,
       payload: { ...newOrder, id: response.name },
@@ -47,7 +46,7 @@ type IHydrateOrder = () => ThunkAction<
 
 export const hydrateOrders: IHydrateOrder = () => {
   return async (dispatch) => {
-    const response = (await http.get('orders.json')) as OrdersIndexResponse;
+    const response = (await api.get('orders.json')) as OrdersIndexResponse;
     const loadedOrders: OrderItem[] = [];
 
     for (const key in response) {
@@ -58,7 +57,6 @@ export const hydrateOrders: IHydrateOrder = () => {
         date: new Date(response[key].date),
       });
     }
-    console.log(response);
     dispatch({ type: HYDRATE_ORDERS, payload: loadedOrders })
   };
 };

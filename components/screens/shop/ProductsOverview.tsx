@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	StyleSheet,
 	FlatList,
@@ -25,10 +25,12 @@ interface ProductsOverviewProps {
 }
 
 const ProductsOverview = (props: ProductsOverviewProps) => {
-	const [products, isLoading, fetchProducts] = useThunk({
+	const [isLoading, setIsLoading] = useState(false);
+	const [products, isRefreshing, fetchProducts] = useThunk({
 		reduxSelector: (state: RootState): Product[] =>
 			state.products.availableProducts,
 		action: hydrateProducts,
+		fetchOnInit: false,
 	}) as [Product[], boolean, any];
 	const dispatch = useDispatch();
 
@@ -40,6 +42,11 @@ const ProductsOverview = (props: ProductsOverviewProps) => {
 		return () => {
 			willFocus.remove();
 		};
+	}, [fetchProducts]);
+
+	useEffect(() => {
+		setIsLoading(true);
+		fetchProducts().then(() => setIsLoading(false));
 	}, [fetchProducts]);
 
 	const renderItem: ListRenderItem<Product> = (itemData) => {
@@ -82,7 +89,14 @@ const ProductsOverview = (props: ProductsOverviewProps) => {
 		);
 	}
 
-	return <FlatList data={products} renderItem={renderItem} />;
+	return (
+		<FlatList
+			onRefresh={fetchProducts}
+			refreshing={isRefreshing}
+			data={products}
+			renderItem={renderItem}
+		/>
+	);
 };
 
 ProductsOverview.navigationOptions = (navData: any) => ({

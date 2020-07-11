@@ -1,3 +1,4 @@
+import { authReducer } from './reducers/auth';
 import productsReducer from './reducers/products';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
@@ -8,6 +9,7 @@ import reduxThunk from 'redux-thunk';
 export type RootState = ReturnType<typeof rootReducer>;
 
 const rootReducer = combineReducers({
+  auth: authReducer,
   products: productsReducer,
   cart: cartReducer,
   orders: ordersReducer,
