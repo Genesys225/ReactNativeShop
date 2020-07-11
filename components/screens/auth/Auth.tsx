@@ -11,7 +11,6 @@ import BeInput from '../../common/BeInput';
 import MainButton from '../../common/MainButton';
 import Colors from '../../../config/colors';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useDispatch } from 'react-redux';
 import { signUp, signIn } from '../../../store/actions/auth';
 import { useThunk } from '../../hooks/useThunk';
 import { RootState } from '../../../store/configureStore';
