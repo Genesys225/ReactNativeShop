@@ -1,25 +1,27 @@
-
-
-import { SIGN_UP, SIGN_IN, AuthActionTypes, AuthState } from './../../models/authTypes';
+import {
+	AuthState,
+	AUTHENTICATE,
+	AuthActionTypes,
+	LOGOUT,
+} from './../../models/authTypes';
 
 const initialState = {
-  token: null,
-  userId: null
-}
+	token: null,
+	userId: null,
+};
 
 export const authReducer = (
-  state: AuthState = initialState,
-  action: AuthActionTypes
+	state: AuthState = initialState,
+	action: AuthActionTypes
 ): AuthState => {
-  switch (action.type) {
-    case SIGN_UP: {
-      const { token, userId } = action.payload
-      return { token, userId }
-    }
-    case SIGN_IN:
-      const { token, userId } = action.payload
-      return { token, userId }
-    default:
-      return state
-  }
-}
+	switch (action.type) {
+		case AUTHENTICATE:
+			const { token, userId } = action.payload;
+			return { token, userId };
+		case LOGOUT:
+			return initialState;
+
+		default:
+			return state;
+	}
+};

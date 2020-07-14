@@ -1,8 +1,8 @@
 import React from 'react';
 import { createStackNavigator } from 'react-navigation-stack';
-import { Platform } from 'react-native';
+import { Platform, View, SafeAreaView } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
-import { createDrawerNavigator } from 'react-navigation-drawer';
+import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
 import { Ionicons } from '@expo/vector-icons';
 import ProductsOverview from '../components/screens/shop/ProductsOverview';
 import ProductDetails from '../components/screens/shop/ProductDetails';
@@ -12,6 +12,10 @@ import Orders from '../components/screens/shop/Orders';
 import UserProducts from '../components/screens/user/UserProducts';
 import EditProduct from '../components/screens/user/EditProduct';
 import Auth from '../components/screens/auth/Auth';
+import StartUp from '../components/screens/StartUp';
+import BeButton from '../components/common/BeButton';
+import { useDispatch } from 'react-redux';
+import { logout } from '../store/actions/auth';
 
 const defaultNavigationOptions = {
 	headerStyle: {
@@ -95,6 +99,24 @@ const ShopNavigator = createDrawerNavigator(
 		contentOptions: {
 			activeTintColor: Colors.primary,
 		},
+		contentComponent: (props) => {
+			const dispatch = useDispatch();
+
+			return (
+				<View style={{ flex: 1, paddingTop: 20 }}>
+					<SafeAreaView>
+						<DrawerItems {...props} />
+						<BeButton
+							title="Logout"
+							onPress={() => {
+								dispatch(logout());
+							}}
+							style={{ width: 'auto' }}
+						/>
+					</SafeAreaView>
+				</View>
+			);
+		},
 	}
 );
 
@@ -108,6 +130,7 @@ const AuthNavigator = createStackNavigator(
 );
 
 const MainNavigator = createSwitchNavigator({
+	StartUp: StartUp,
 	Auth: AuthNavigator,
 	Shop: ShopNavigator,
 });

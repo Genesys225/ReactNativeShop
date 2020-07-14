@@ -1,5 +1,5 @@
 import { authReducer } from './reducers/auth';
-import { productsReducer } from './reducers/products';
+import { productsReducer, ProductState } from './reducers/products';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import cartReducer from './reducers/cart';

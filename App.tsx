@@ -1,38 +1,39 @@
-import React, { useState } from 'react'
-import { StyleSheet } from 'react-native'
-import { Provider } from 'react-redux'
-import { AppLoading } from 'expo'
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { Provider } from 'react-redux';
+import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
 
-import ShopNavigator from './navigation/ShopNavigator';
-import configureStore from './store/configureStore'
+import configureStore from './store/configureStore';
+import NavigationContainer from './components/NavigationContainer';
 
 const fetchFonts = () => {
-  return Font.loadAsync({
-    'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
-    'open-sans-bold': require('./assets/fonts/OpenSans-Bold.ttf'),
-  });
-}
-
+	return Font.loadAsync({
+		'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
+		'open-sans-bold': require('./assets/fonts/OpenSans-Bold.ttf'),
+	});
+};
 
 const App = () => {
-  const [loading, setLoading] = useState<boolean>(true);
+	const [loading, setLoading] = useState<boolean>(true);
 
-  if (loading) {
-    return <AppLoading 
-        startAsync={fetchFonts}
-        onFinish={setLoading.bind(App, false)}
-        onError={console.error}
-    />
-  }
-  
-  return (
-    <Provider store={configureStore()}>
-      <ShopNavigator />
-    </Provider>
-  )
-}
+	if (loading) {
+		return (
+			<AppLoading
+				startAsync={fetchFonts}
+				onFinish={setLoading.bind(App, false)}
+				onError={console.error}
+			/>
+		);
+	}
 
-export default App
+	return (
+		<Provider store={configureStore()}>
+			<NavigationContainer />
+		</Provider>
+	);
+};
 
-const styles = StyleSheet.create({})
+export default App;
+
+const styles = StyleSheet.create({});

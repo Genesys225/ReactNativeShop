@@ -1,19 +1,17 @@
-export const SIGN_UP = 'SIGN_UP'
-export const SIGN_IN = 'SIGN_IN'
+export const AUTHENTICATE = 'AUTHENTICATE';
+export const LOGOUT = 'LOGOUT';
 
-export interface SignUpAction {
-  type: 'SIGN_UP'
-  payload: { token: string, userId: string }
+export interface Authenticate {
+	type: 'AUTHENTICATE';
+	payload: { token: string; userId: string };
 }
-
-export interface SignInAction {
-  type: 'SIGN_IN'
-  payload: { token: string, userId: string }
+export interface Logout {
+	type: 'LOGOUT';
 }
 
 export interface AuthState {
-  token: string | null,
-  userId: string | null
+	token: string | null;
+	userId: string | null;
 }
 
-export type AuthActionTypes = SignInAction | SignUpAction
+export type AuthActionTypes = Authenticate | Logout;
